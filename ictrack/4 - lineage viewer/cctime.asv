@@ -1,0 +1,47 @@
+function [gfpp rfpp] = pactivity(lin, t, ingate)
+
+% PACTIVITY Calculates promoter activity of traces within lineage
+% Created 10/10/2011, HYK
+%
+% [P PINT] = PACTIVITY(LIN, T, MINLEN, INGATE) takes a lineage structure, and
+% performs linear regression on traces longer than MINLEN to obtain a
+% vector of promoter activity P, with confidence interval PINT.
+%
+% When INGATE = 0, promoter activity of all traces longer than MINLEN are
+% calculated.  
+%
+% When INGATE = 1, promoter activity of only traces that
+% intersect with the gate are calculated.
+
+gfpp = [];
+gfp1 = [];
+gfp2 = [];
+        
+rfpp = [];
+rfp1 = [];
+rfp2 = [];
+
+L = length(lin);
+
+close all;
+for i = 1:L    
+    %figure(i)
+    trs = lin(i).trs;    
+    for j = 1:length(trs)   % loop through all traces        
+        
+        
+        
+        if (length(th) <= minlen)   % trajectory is too short
+            continue
+        elseif (~minlen)&(isempty(trs(j).children))   % not a complete cell cycle
+            continue
+        elseif ((ingate)&(~trs(j).ingate))   % not in the ingate when it is a requirement
+            continue
+        elseif (length(th) ~= length(gfp))
+            fprintf(['inconsistent lengths for track ' num2str(i) ',' num2str(j) '\n']);
+            continue
+        end
+          
+  
+    end    
+end

@@ -1,0 +1,79 @@
+function [gfpp rfpp cc ccc] = pactivity(lin, t, minlen, ingate)
+
+% PACTIVITY Calculates promoter activity of traces within lineage
+% Created 10/10/2011, HYK
+%
+% [P PINT] = PACTIVITY(LIN, T, MINLEN, INGATE) takes a lineage structure, and
+% performs linear regression on traces longer than MINLEN to obtain a
+% vector of promoter activity P, with confidence interval PINT.
+%
+% When INGATE = 0, promoter activity of all traces longer than MINLEN are
+% calculated.  
+%
+% When INGATE = 1, promoter activity of only traces that
+% intersect with the gate are calculated.
+
+gfpp = [];
+gfp1 = [];
+gfp2 = [];
+        
+rfpp = [];
+rfp1 = [];
+rfp2 = [];
+
+cc = [];
+ccc = [];
+
+L = length(lin);
+
+close all;
+for i = 1:L    
+    %figure(i)
+    trs = lin(i).trs;    
+    for j = 1:length(trs)   % loop through all traces        
+        gfp = [trs(j).data.gfp];
+        rfp = [trs(j).data.rfp];   % can fit to a straight line later
+        ts = trs(j).ts;        % convert this to the houly time directly
+        th = t(ts);                
+        
+        if (length(th) <= minlen)   % trajectory is too short
+            continue
+        elseif (~minlen)&(isempty(trs(j).children))   % not a complete cell cycle
+            continue
+        elseif ((ingate)&(~trs(j).ingate))   % not in the ingate when it is a requirement
+            continue
+        elseif (length(th) ~= length(gfp))
+            fprintf(['inconsistent lengths for track ' num2str(i) ',' num2str(j) '\n']);
+            continue
+        end
+          
+        fgfp = fit(th',gfp','poly1');
+        frfp = fit(th',rfp','poly1');
+        
+        %subplot(2,1,1); 
+        %hold on; plot(th, gfp, 'gx'); title('gfp');        
+        %plot(th, fgfp(th)); subplot(2,1,2); 
+        %hold on; plot(th, rfp, 'rx');
+        %plot(th, frfp(th)); title('rfp')        
+        
+        gfp_cint = confint(fgfp);
+        rfp_cint = confint(frfp);
+        
+        gfpp = [gfpp fgfp.p1];   % gfp promoter activity
+        gfp1 = [gfp1 gfp_cint(1,1)];
+        gfp2 = [gfp2 gfp_cint(2,1)];
+        
+        % record cell cycle length and completeness
+        
+        cc = [cc th(end)-th(1)];    
+        if ((j > 1) & (~isempty(trs(j).children)))
+            ccc = [ccc 1];
+        else
+            ccc = [ccc 0];
+        end
+        
+        rfpp = [rfpp frfp.p1];   % rfp promoter activity
+        rfp1 = [rfp1 rfp_cint(1,1)];
+        rfp2 = [rfp2 rfp_cint(2,1)];        
+    end    
+end
