@@ -41,7 +41,7 @@ N = 5;   %sqrt(S);   % the number of column positions
 %% map stage positions
 S = M*N;  % the total number of stage positions for this condition
 mapping = reshape(1:S,M,N);  % tiling order for the images
-mapping = mapping(:,end:-1:1) + offset*S;
+mapping = mapping(:,end : -1 : 1) + offset * S;
  
 -	Specify the identity of the channels in the images in
 1 - preprocess, segment and track/mmpp.m (line 35)
